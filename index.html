@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WABlast Pro — Dashboard WhatsApp Blast Sender</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        wa: {
+                            light: '#25D366',
+                            dark: '#128C7E',
+                            teal: '#075E54',
+                            bubble: '#DCF8C6',
+                            bg: '#ECE5DD'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .wa-wallpaper {
+            background-color: #EFEAE2;
+            background-image: radial-gradient(#d4cdc3 0.75px, transparent 0.75px), radial-gradient(#d4cdc3 0.75px, #EFEAE2 0.75px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ===================================================================== -->
+    <!-- HALAMAN AUTENTIKASI (LOGIN & REGISTER)                                -->
+    <!-- ===================================================================== -->
+    <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950">
+        <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200/70 overflow-hidden">
+            <!-- Header Brand -->
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-7 text-white text-center relative overflow-hidden">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center mb-3 shadow-lg border border-white/20">
+                    <i data-lucide="send" class="w-7 h-7 text-white"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight">WABlast <span class="text-emerald-200">Pro</span></h1>
+                <p class="text-xs text-emerald-100 mt-1">Platform Broadcast & Automasi Pesan WhatsApp</p>
+            </div>
+
+            <!-- Tab Switcher Login / Register -->
+            <div class="px-6 pt-5">
+                <div class="grid grid-cols-2 bg-slate-100 p-1 rounded-xl border border-slate-200/70">
+                    <button id="tab-login-btn" type="button" onclick="switchAuthTab('login')" class="py-2 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm transition">
+                        Masuk Akun
+                    </button>
+                    <button id="tab-register-btn" type="button" onclick="switchAuthTab('register')" class="py-2 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-800 transition">
+                        Daftar Baru
+                    </button>
+                </div>
+            </div>
+
+            <!-- Form Login -->
+            <form id="login-form" onsubmit="handleLogin(event)" class="p-6 space-y-4">
+                <div id="auth-error-box" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                    <span id="auth-error-msg">Username atau kata sandi salah.</span>
+                </div>
+
+                <div>
+                    <label for="login-username" class="block text-xs font-semibold text-slate-700 mb-1.5">Username atau Email</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                            <i data-lucide="user" class="w-4 h-4"></i>
+                        </span>
+                        <input type="text" id="login-username" required autocomplete="username" placeholder="Masukkan username atau email" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="login-password" class="block text-xs font-semibold text-slate-700 mb-1.5">Kata Sandi</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                            <i data-lucide="lock" class="w-4 h-4"></i>
+                        </span>
+                        <input type="password" id="login-password" required autocomplete="current-password" placeholder="Masukkan kata sandi" class="w-full pl-10 pr-10 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+                        <button type="button" onclick="togglePasswordVisibility('login-password', this)" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-1">
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="remember-me" checked class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                        <span class="text-xs text-slate-600 font-medium">Ingat sesi saya</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 transition">
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    Masuk ke Dashboard
+                </button>
+            </form>
+
+            <!-- Form Register -->
+            <form id="register-form" onsubmit="handleRegister(event)" class="hidden p-6 space-y-4">
+                <div>
+                    <label for="reg-fullname" class="block text-xs font-semibold text-slate-700 mb-1.5">Nama Lengkap</label>
+                    <input type="text" id="reg-fullname" required placeholder="Contoh: Ahmad Fauzi" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+                </div>
+                <div>
+                    <label for="reg-username" class="block text-xs font-semibold text-slate-700 mb-1.5">Username atau Email</label>
+                    <input type="text" id="reg-username" required placeholder="Masukkan username unik" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+                </div>
+                <div>
+                    <label for="reg-password" class="block text-xs font-semibold text-slate-700 mb-1.5">Kata Sandi</label>
+                    <input type="password" id="reg-password" required minlength="6" placeholder="Minimal 6 karakter" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+                </div>
+                <button type="submit" class="w-full py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    Buat Akun & Masuk
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MAIN DASHBOARD APPLICATION                                            -->
+    <!-- ===================================================================== -->
+    <div id="dashboard-screen" class="hidden flex-1 flex flex-col">
+        <!-- Top Navbar -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+                        <i data-lucide="send" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="font-bold text-lg text-slate-900 tracking-tight">WABlast <span class="text-emerald-600">Pro</span></h1>
+                            <span class="px-2 py-0.5 text-[11px] font-semibold bg-emerald-100 text-emerald-700 rounded-full">Bulk Sender</span>
+                        </div>
+                        <p class="text-xs text-slate-500 hidden sm:block">Kirim Pesan Massal ke Semua Nomor Sekaligus</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5 sm:gap-3">
+                    <!-- User Badge -->
+                    <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-full">
+                        <div id="nav-user-avatar" class="w-6 h-6 rounded-full bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center">
+                            U
+                        </div>
+                        <span id="nav-user-name" class="text-xs font-semibold text-slate-700 max-w-[110px] sm:max-w-[160px] truncate">Pengguna</span>
+                    </div>
+
+                    <button onclick="resetAllData()" title="Reset Sesi Data" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        <span class="hidden md:inline">Reset</span>
+                    </button>
+
+                    <button onclick="handleLogout()" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition">
+                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                        <span>Keluar</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Content -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+            <!-- Top Stats Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500">Total Input Baris</p>
+                        <p id="stat-total" class="text-2xl font-bold text-slate-800 mt-1">0</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-emerald-600">Siap Dikirim (Valid)</p>
+                        <p id="stat-valid" class="text-2xl font-bold text-emerald-600 mt-1">0</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-rose-600">Invalid / Duplikat</p>
+                        <p id="stat-invalid" class="text-2xl font-bold text-rose-600 mt-1">0</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                        <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-teal-700">Terkirim / Diproses</p>
+                        <p id="stat-sent" class="text-2xl font-bold text-teal-700 mt-1">0</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center">
+                        <i data-lucide="check-check" class="w-5 h-5"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3-Column Workspace -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- KOLOM 1: Manajemen & Validasi Daftar Nomor (4 cols) -->
+                <section class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm flex flex-col overflow-hidden">
+                    <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center">1</span>
+                            <h2 class="font-semibold text-slate-800 text-sm">Daftar Semua Nomor</h2>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="loadDummyData()" class="px-2.5 py-1 text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition">
+                                Muat Data Contoh
+                            </button>
+                            <label class="cursor-pointer px-2.5 py-1 text-xs font-medium bg-white text-slate-700 hover:bg-slate-100 rounded-lg border border-slate-200 transition inline-flex items-center gap-1">
+                                <i data-lucide="upload" class="w-3 h-3"></i> CSV/TXT
+                                <input type="file" id="file-upload" accept=".csv,.txt" class="hidden" onchange="handleFileUpload(event)">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="p-4 flex-1 flex flex-col space-y-3">
+                        <div class="text-xs text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-200/70">
+                            <p class="font-semibold text-slate-700 mb-0.5">Format Input (1 kontak per baris):</p>
+                            <code class="text-[11px] text-emerald-700">Nomor</code> atau <code class="text-[11px] text-emerald-700">Nomor, Nama, Keterangan</code>
+                            <p class="text-[11px] text-slate-400 mt-1">Otomatis normalisasi <b>08...</b> / <b>+628...</b> menjadi <b>628...</b> & hapus duplikat.</p>
+                        </div>
+
+                        <textarea id="recipients-input" rows="6" oninput="parseRecipients()" placeholder="Contoh:&#10;081234567890, Budi Santoso, Tagihan Rp 250.000&#10;085712345678, Siti Aminah, Lunas&#10;089611223344" class="w-full p-3 text-xs font-mono bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition resize-none"></textarea>
+
+                        <!-- Interactive Validated Recipients List -->
+                        <div class="border border-slate-200 rounded-xl overflow-hidden flex-1 flex flex-col">
+                            <div class="bg-slate-50 px-3 py-2 border-b border-slate-200 flex items-center justify-between text-xs font-medium text-slate-600">
+                                <span>Kontak Terdaftar</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="validation-badge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">0 Valid</span>
+                                    <span id="invalid-badge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 hidden">0 Invalid</span>
+                                </div>
+                            </div>
+                            <div id="parsed-list" class="max-h-56 overflow-y-auto divide-y divide-slate-100 text-xs">
+                                <div class="p-4 text-center text-slate-400">Belum ada nomor dimasukkan</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- KOLOM 2: Composer & 3 Mode Pengiriman Massal (4 cols) -->
+                <section class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm flex flex-col overflow-hidden">
+                    <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center">2</span>
+                            <h2 class="font-semibold text-slate-800 text-sm">Pesan & Kirim ke Semua</h2>
+                        </div>
+                        <span id="char-count" class="text-xs text-slate-400 font-mono">0 karakter</span>
+                    </div>
+
+                    <div class="p-4 flex-1 flex flex-col space-y-3.5">
+                        <!-- Template Cepat & Variabel -->
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Template Pesan:</span>
+                                <select id="template-selector" onchange="applyMessageTemplate(this.value)" class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none focus:border-emerald-500">
+                                    <option value="">-- Pilih Template Cepat --</option>
+                                    <option value="promo">Promo & Penawaran Spesial</option>
+                                    <option value="tagihan">Pengingat Tagihan / Invoice</option>
+                                    <option value="undangan">Undangan Acara / Konfirmasi</option>
+                                </select>
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-between gap-1.5 pt-1 border-t border-slate-100">
+                                <div class="flex items-center gap-1">
+                                    <span class="text-[11px] font-semibold text-slate-400 mr-0.5">Variabel:</span>
+                                    <button type="button" onclick="insertText('{nama}')" class="px-2 py-0.5 text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-md transition">{nama}</button>
+                                    <button type="button" onclick="insertText('{keterangan}')" class="px-2 py-0.5 text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-md transition">{keterangan}</button>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <button type="button" onclick="wrapSelection('*')" title="Bold" class="w-6 h-6 flex items-center justify-center text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition">B</button>
+                                    <button type="button" onclick="wrapSelection('_')" title="Italic" class="w-6 h-6 flex items-center justify-center text-xs italic font-serif bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition">I</button>
+                                    <button type="button" onclick="wrapSelection('~')" title="Strikethrough" class="w-6 h-6 flex items-center justify-center text-xs line-through bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition">S</button>
+                                    <button type="button" onclick="wrapSelection('```')" title="Monospace" class="px-1.5 h-6 flex items-center justify-center text-[10px] font-mono bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition">&lt;/&gt;</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Message Textarea -->
+                        <textarea id="message-input" rows="5" oninput="updateLivePreview()" placeholder="Tulis pesan WhatsApp Anda di sini..." class="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition resize-none">Halo *{nama}* 👋,
+
+Kami menginformasikan rincian layanan Anda:
+• Keterangan: *{keterangan}*
+
+Terima kasih telah mempercayai layanan kami. ~Abaikan jika sudah selesai~ Salam hangat!</textarea>
+
+                        <!-- PILIHAN 3 MODE PENGIRIMAN MASSAL -->
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/90 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                    <i data-lucide="zap" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                    Pilih Metode Blast
+                                </label>
+                                <div class="flex items-center gap-1.5">
+                                    <label for="delay-input" class="text-[11px] font-medium text-slate-500">Jeda:</label>
+                                    <input type="number" id="delay-input" value="3" min="1" max="60" step="1" class="w-14 px-1.5 py-1 text-xs font-bold text-center bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500 outline-none">
+                                    <span class="text-[11px] text-slate-500">dtk</span>
+                                </div>
+                            </div>
+
+                            <!-- 3 Mode Cards -->
+                            <div class="grid grid-cols-3 gap-1.5">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="send-mode" value="api" onchange="switchSendingMode()" class="peer sr-only">
+                                    <div class="p-2 rounded-xl border border-slate-200 bg-white peer-checked:border-emerald-600 peer-checked:bg-emerald-50 peer-checked:ring-1 peer-checked:ring-emerald-600 transition text-center h-full flex flex-col justify-center">
+                                        <p class="text-[11px] font-bold text-slate-800 leading-tight">API Gateway</p>
+                                        <p class="text-[9px] text-emerald-700 font-medium mt-0.5">100% Otomatis</p>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="send-mode" value="autolaunch" checked onchange="switchSendingMode()" class="peer sr-only">
+                                    <div class="p-2 rounded-xl border border-slate-200 bg-white peer-checked:border-emerald-600 peer-checked:bg-emerald-50 peer-checked:ring-1 peer-checked:ring-emerald-600 transition text-center h-full flex flex-col justify-center">
+                                        <p class="text-[11px] font-bold text-slate-800 leading-tight">Auto-Launch</p>
+                                        <p class="text-[9px] text-slate-500 mt-0.5">Tanpa API / Tab</p>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="send-mode" value="simulation" onchange="switchSendingMode()" class="peer sr-only">
+                                    <div class="p-2 rounded-xl border border-slate-200 bg-white peer-checked:border-emerald-600 peer-checked:bg-emerald-50 peer-checked:ring-1 peer-checked:ring-emerald-600 transition text-center h-full flex flex-col justify-center">
+                                        <p class="text-[11px] font-bold text-slate-800 leading-tight">Simulasi</p>
+                                        <p class="text-[9px] text-slate-500 mt-0.5">Mode Uji Coba</p>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- PANEL KONFIGURASI MODE A: API GATEWAY -->
+                            <div id="panel-mode-api" class="hidden space-y-2.5 pt-2 border-t border-slate-200">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-700 mb-1">Provider WhatsApp Gateway</label>
+                                    <select id="api-provider" onchange="updateApiPlaceholder()" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg outline-none focus:border-emerald-500">
+                                        <option value="fonnte">Fonnte API (api.fonnte.com)</option>
+                                        <option value="wablas">Wablas API (wablas.com)</option>
+                                        <option value="meta">Meta WhatsApp Cloud API</option>
+                                        <option value="custom">Custom Webhook / REST API</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-700 mb-1">API Token / Authorization Key</label>
+                                    <input type="password" id="api-token" placeholder="Masukkan API Token Fonnte Anda..." class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg outline-none focus:border-emerald-500">
+                                </div>
+                                <div id="api-endpoint-wrapper" class="hidden">
+                                    <label class="block text-[11px] font-semibold text-slate-700 mb-1">Endpoint URL</label>
+                                    <input type="url" id="api-endpoint" placeholder="https://domain-gateway.com/api/send-message" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg outline-none focus:border-emerald-500">
+                                </div>
+                            </div>
+
+                            <!-- PANEL INFO MODE B: AUTO-LAUNCH BROWSER QUEUE -->
+                            <div id="panel-mode-autolaunch" class="space-y-2 pt-2 border-t border-slate-200">
+                                <div class="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-[11px] text-amber-800 flex items-start gap-2">
+                                    <i data-lucide="info" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+                                    <span><b>Izinkan Pop-up di browser</b> agar seluruh tab WhatsApp nomor terdaftar dapat terbuka otomatis tanpa diblokir.</span>
+                                </div>
+                                <button type="button" onclick="launchAllTabsAtOnce()" class="w-full py-1.5 px-3 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-semibold text-[11px] rounded-lg flex items-center justify-center gap-1.5 transition">
+                                    <i data-lucide="layers" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                    Buka Semua Tab Sekaligus (Tanpa Jeda)
+                                </button>
+                            </div>
+
+                            <!-- PANEL INFO MODE C: SIMULASI -->
+                            <div id="panel-mode-simulation" class="hidden pt-2 border-t border-slate-200">
+                                <p class="text-[11px] text-slate-500">Menjalankan simulasi pengiriman massal untuk menguji variabel pesan, jeda waktu, dan format laporan CSV.</p>
+                            </div>
+
+                            <!-- LIVE PROGRESS BAR & COUNTDOWN -->
+                            <div id="blast-progress-container" class="hidden space-y-1.5 pt-2 border-t border-slate-200">
+                                <div class="flex items-center justify-between text-[11px] font-semibold">
+                                    <span id="blast-status-text" class="text-emerald-700 truncate pr-2">Mempersiapkan...</span>
+                                    <span id="blast-percentage" class="text-slate-700 shrink-0">0%</span>
+                                </div>
+                                <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                                    <div id="blast-progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-600 transition-all duration-300" style="width: 0%"></div>
+                                </div>
+                                <div class="flex items-center justify-between text-[10px] text-slate-500">
+                                    <span id="blast-countdown-text">Menunggu giliran...</span>
+                                    <span id="blast-counter-text">0 / 0 nomor</span>
+                                </div>
+                            </div>
+
+                            <!-- TOMBOL AKSI UTAMA: KIRIM KE SEMUA NOMOR + PAUSE/RESUME/STOP -->
+                            <div class="flex items-center gap-2 pt-1">
+                                <button id="btn-start-blast" type="button" onclick="startUnifiedBlast()" class="flex-1 py-2.5 px-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition">
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                    <span id="btn-start-label">Kirim ke Semua Nomor</span>
+                                </button>
+
+                                <button id="btn-pause-blast" type="button" onclick="togglePauseBlast()" class="hidden py-2.5 px-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs rounded-xl shadow-sm flex items-center justify-center gap-1 transition">
+                                    <i data-lucide="pause" class="w-3.5 h-3.5"></i>
+                                    <span>Jeda</span>
+                                </button>
+
+                                <button id="btn-stop-blast" type="button" onclick="stopUnifiedBlast()" class="hidden py-2.5 px-3 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs rounded-xl shadow-sm flex items-center justify-center gap-1 transition">
+                                    <i data-lucide="square" class="w-3.5 h-3.5"></i>
+                                    <span>Stop</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- KOLOM 3: Live Preview WhatsApp Mockup (4 cols) -->
+                <section class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm flex flex-col overflow-hidden">
+                    <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center">3</span>
+                            <h2 class="font-semibold text-slate-800 text-sm">Live Preview WhatsApp</h2>
+                        </div>
+                        <select id="preview-recipient-select" onchange="updateLivePreview()" class="text-xs bg-white border border-slate-200 rounded-lg px-2 py-1 text-slate-700 outline-none max-w-[145px] truncate">
+                            <option value="0">Contoh Penerima</option>
+                        </select>
+                    </div>
+
+                    <!-- Phone Mockup Frame -->
+                    <div class="p-4 flex-1 flex items-center justify-center bg-slate-100/70">
+                        <div class="w-full max-w-[330px] rounded-[28px] border-[6px] border-slate-800 bg-white shadow-xl overflow-hidden flex flex-col h-[470px]">
+                            <!-- WA Header -->
+                            <div class="bg-wa-teal text-white px-3.5 py-2.5 flex items-center justify-between">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <i data-lucide="arrow-left" class="w-4 h-4 opacity-80 shrink-0"></i>
+                                    <div class="w-8 h-8 rounded-full bg-emerald-200 text-wa-teal font-bold text-xs flex items-center justify-center shrink-0" id="preview-avatar">
+                                        BS
+                                    </div>
+                                    <div class="truncate">
+                                        <p id="preview-name" class="text-xs font-semibold leading-tight truncate">Budi Santoso</p>
+                                        <p id="preview-phone" class="text-[10px] text-emerald-200 truncate">+62 812-3456-7890</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2.5 opacity-80 shrink-0">
+                                    <i data-lucide="video" class="w-4 h-4"></i>
+                                    <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+                                </div>
+                            </div>
+
+                            <!-- WA Chat Area -->
+                            <div class="flex-1 wa-wallpaper p-3 overflow-y-auto flex flex-col justify-between">
+                                <div class="space-y-2">
+                                    <div class="mx-auto w-fit px-2.5 py-0.5 rounded-md bg-white/85 text-[10px] text-slate-500 shadow-sm">
+                                        Hari Ini
+                                    </div>
+                                    <div class="bg-[#FFF5C4] text-slate-600 text-[10px] p-2 rounded-lg text-center shadow-sm">
+                                        🔒 Pratinjau pesan otomatis menyesuaikan data setiap penerima.
+                                    </div>
+
+                                    <!-- Outgoing Message Bubble -->
+                                    <div class="ml-auto max-w-[88%] bg-wa-bubble text-slate-800 rounded-2xl rounded-tr-none px-3 py-2 shadow-sm relative">
+                                        <div id="preview-bubble-text" class="text-[13px] leading-relaxed break-words whitespace-pre-wrap"></div>
+                                        <div class="flex items-center justify-end gap-1 mt-1">
+                                            <span id="preview-time" class="text-[10px] text-slate-500">14:05</span>
+                                            <i data-lucide="check-check" class="w-3.5 h-3.5 text-sky-500"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- WA Input Bar Mockup -->
+                            <div class="bg-[#F0F2F5] px-2.5 py-2 flex items-center gap-2">
+                                <div class="flex-1 bg-white rounded-full px-3 py-1.5 text-[11px] text-slate-400 flex items-center justify-between">
+                                    <span>Ketik pesan</span>
+                                    <i data-lucide="paperclip" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <div class="w-7 h-7 rounded-full bg-wa-dark text-white flex items-center justify-center">
+                                    <i data-lucide="mic" class="w-3.5 h-3.5"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TABEL RIWAYAT / LOG PENGIRIMAN -->
+            <section class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                <div class="p-4 sm:px-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70">
+                    <div>
+                        <h2 class="font-semibold text-slate-800 text-base flex items-center gap-2">
+                            <i data-lucide="history" class="w-4 h-4 text-emerald-600"></i>
+                            Riwayat & Log Pengiriman Massal
+                        </h2>
+                        <p class="text-xs text-slate-500">Status pengiriman real-time untuk setiap nomor terdaftar</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <select id="log-filter-status" onchange="renderLogsTable()" class="px-3 py-2 text-xs font-medium bg-white border border-slate-200 rounded-xl text-slate-700 outline-none">
+                            <option value="ALL">Semua Status</option>
+                            <option value="Terkirim">Terkirim / Dibuka</option>
+                            <option value="Gagal">Gagal</option>
+                        </select>
+                        <button type="button" onclick="clearLogs()" class="px-3 py-2 text-xs font-medium text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition inline-flex items-center gap-1.5">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            Hapus Log
+                        </button>
+                        <button type="button" onclick="exportLogsCSV()" class="px-3.5 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition inline-flex items-center gap-1.5 shadow-sm">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                            Export Log CSV
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                                <th class="py-3 px-4">No</th>
+                                <th class="py-3 px-4">Nama</th>
+                                <th class="py-3 px-4">Nomor Tujuan</th>
+                                <th class="py-3 px-4">Mode</th>
+                                <th class="py-3 px-4">Status</th>
+                                <th class="py-3 px-4">Waktu</th>
+                                <th class="py-3 px-4">Keterangan / Respon</th>
+                                <th class="py-3 px-4 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-table-body" class="divide-y divide-slate-100 text-xs">
+                            <tr>
+                                <td colspan="8" class="py-8 text-center text-slate-400">
+                                    Belum ada riwayat pengiriman. Klik "Kirim ke Semua Nomor" untuk memulai blast.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // =====================================================================
+        // 1. STATE & KONFIGURASI AUTENTIKASI
+        // =====================================================================
+        const STORAGE_USERS_KEY = 'wablast_registered_users';
+        const STORAGE_SESSION_KEY = 'wablast_active_session';
+
+        let validRecipients = [];
+        let invalidRecipients = [];
+        let deliveryLogs = [];
+
+        // State Pengiriman Massal
+        let isBlasting = false;
+        let isPaused = false;
+        let stopBlastRequested = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            checkAuthSession();
+            updateClock();
+            setInterval(updateClock, 30000);
+        });
+
+        function checkAuthSession() {
+            const savedSession = localStorage.getItem(STORAGE_SESSION_KEY) || sessionStorage.getItem(STORAGE_SESSION_KEY);
+            if (savedSession) {
+                try {
+                    const user = JSON.parse(savedSession);
+                    enterDashboard(user);
+                    return;
+                } catch (e) {
+                    localStorage.removeItem(STORAGE_SESSION_KEY);
+                    sessionStorage.removeItem(STORAGE_SESSION_KEY);
+                }
+            }
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('dashboard-screen').classList.add('hidden');
+        }
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('login-form');
+            const regForm = document.getElementById('register-form');
+            const tabLogin = document.getElementById('tab-login-btn');
+            const tabReg = document.getElementById('tab-register-btn');
+            document.getElementById('auth-error-box').classList.add('hidden');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+                tabLogin.className = 'py-2 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm transition';
+                tabReg.className = 'py-2 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-800 transition';
+            } else {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                tabReg.className = 'py-2 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm transition';
+                tabLogin.className = 'py-2 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-800 transition';
+            }
+        }
+
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const isPass = input.type === 'password';
+            input.type = isPass ? 'text' : 'password';
+            btn.innerHTML = isPass ? '<i data-lucide="eye-off" class="w-4 h-4"></i>' : '<i data-lucide="eye" class="w-4 h-4"></i>';
+            lucide.createIcons();
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const rawUser = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            const remember = document.getElementById('remember-me').checked;
+            const errorBox = document.getElementById('auth-error-box');
+            const errorMsg = document.getElementById('auth-error-msg');
+
+            let authenticatedUser = null;
+
+            // Validasi kredensial utama (username case-insensitive, password exact)
+            if (rawUser.toLowerCase() === 'chalonkbasket86' && password === 'Farez2017') {
+                authenticatedUser = {
+                    username: 'chalonkbasket86',
+                    fullName: 'chalonkbasket86'
+                };
+            } else {
+                // Cek akun terdaftar di localStorage
+                const users = JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || '[]');
+                const found = users.find(u => u.username.toLowerCase() === rawUser.toLowerCase() && u.password === password);
+                if (found) {
+                    authenticatedUser = {
+                        username: found.username,
+                        fullName: found.fullName || found.username
+                    };
+                }
+            }
+
+            if (!authenticatedUser) {
+                errorMsg.textContent = 'Username/email atau kata sandi tidak sesuai.';
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            errorBox.classList.add('hidden');
+            const sessionStr = JSON.stringify(authenticatedUser);
+            if (remember) {
+                localStorage.setItem(STORAGE_SESSION_KEY, sessionStr);
+            } else {
+                sessionStorage.setItem(STORAGE_SESSION_KEY, sessionStr);
+            }
+
+            enterDashboard(authenticatedUser);
+            showToast(`Selamat datang kembali, ${authenticatedUser.fullName}!`);
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const fullName = document.getElementById('reg-fullname').value.trim();
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value;
+
+            if (!fullName || !username || password.length < 6) return;
+
+            const users = JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || '[]');
+            if (username.toLowerCase() === 'chalonkbasket86' || users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+                showToast('Username sudah terdaftar, silakan gunakan nama lain.', 'error');
+                return;
+            }
+
+            const newUser = { fullName, username, password };
+            users.push(newUser);
+            localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
+
+            const sessionUser = { username, fullName };
+            localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(sessionUser));
+            enterDashboard(sessionUser);
+            showToast('Akun berhasil dibuat & masuk ke dashboard!');
+        }
+
+        function enterDashboard(user) {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+
+            const displayName = user.fullName || user.username || 'Pengguna';
+            document.getElementById('nav-user-name').textContent = displayName;
+            document.getElementById('nav-user-avatar').textContent = displayName.substring(0, 2).toUpperCase();
+
+            if (validRecipients.length === 0) {
+                loadDummyData(true);
+            }
+            lucide.createIcons();
+        }
+
+        function handleLogout() {
+            stopUnifiedBlast();
+            localStorage.removeItem(STORAGE_SESSION_KEY);
+            sessionStorage.removeItem(STORAGE_SESSION_KEY);
+            document.getElementById('login-password').value = '';
+            document.getElementById('dashboard-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+            showToast('Anda telah keluar dari sesi.', 'info');
+        }
+
+        // =====================================================================
+        // 2. MANAJEMEN PENERIMA & VALIDASI NOMOR
+        // =====================================================================
+        function updateClock() {
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const el = document.getElementById('preview-time');
+            if (el) el.textContent = `${hh}:${mm}`;
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-slate-900 text-white border-emerald-500',
+                error: 'bg-rose-600 text-white border-rose-800',
+                info: 'bg-teal-800 text-white border-emerald-400'
+            };
+            toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg border-l-4 text-xs font-medium flex items-center gap-2.5 transform transition-all duration-300 ${colors[type] || colors.success}`;
+            toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 3400);
+        }
+
+        function loadDummyData(silent = false) {
+            const dummy = [
+                "081234567890, Budi Santoso, Tagihan Rp 350.000",
+                "0857-9876-5432, Siti Rahmawati, Paket Gold Aktif",
+                "+62 813 1122 3344, Andi Wijaya, Jatuh Tempo Besok",
+                "6289655443322, Dewi Lestari, Konfirmasi Pesanan #INV09",
+                "12345, Nomor Invalid, Error Format"
+            ].join('\n');
+
+            document.getElementById('recipients-input').value = dummy;
+            parseRecipients();
+            if (!silent) showToast('Data contoh berhasil dimuat!', 'info');
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const lines = content.split(/\r?\n/).filter(line => line.trim() !== '');
+                if (lines.length > 0 && /^(nomor|phone|hp|whatsapp|nama)/i.test(lines[0])) {
+                    lines.shift();
+                }
+                document.getElementById('recipients-input').value = lines.join('\n');
+                parseRecipients();
+                showToast(`Berhasil mengimpor ${lines.length} baris dari ${file.name}`);
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function normalizePhoneNumber(raw) {
+            let cleaned = String(raw || '').replace(/[^0-9]/g, '');
+            if (!cleaned) return null;
+
+            if (cleaned.startsWith('08')) {
+                cleaned = '62' + cleaned.slice(1);
+            } else if (cleaned.startsWith('8')) {
+                cleaned = '62' + cleaned;
+            }
+
+            // Validasi panjang nomor seluler Indonesia/Internasional (10 - 15 digit)
+            if (/^628[0-9]{8,12}$/.test(cleaned) || (/^[1-9][0-9]{9,14}$/.test(cleaned) && !cleaned.startsWith('620'))) {
+                return cleaned;
+            }
+            return null;
+        }
+
+        function parseRecipients() {
+            const rawText = document.getElementById('recipients-input').value;
+            const lines = rawText.split(/\r?\n/).filter(line => line.trim() !== '');
+
+            validRecipients = [];
+            invalidRecipients = [];
+            const seenNumbers = new Set();
+
+            lines.forEach((line, idx) => {
+                const parts = line.split(/[,;\t]/).map(p => p.trim());
+                let name = 'Pelanggan';
+                let rawPhone = '';
+                let note = '-';
+
+                if (parts.length === 1) {
+                    rawPhone = parts[0];
+                } else if (parts.length === 2) {
+                    if (normalizePhoneNumber(parts[0])) {
+                        rawPhone = parts[0];
+                        name = parts[1] || 'Pelanggan';
+                    } else {
+                        name = parts[0] || 'Pelanggan';
+                        rawPhone = parts[1];
+                    }
+                } else {
+                    if (normalizePhoneNumber(parts[0])) {
+                        rawPhone = parts[0];
+                        name = parts[1] || 'Pelanggan';
+                        note = parts.slice(2).join(', ') || '-';
+                    } else {
+                        name = parts[0] || 'Pelanggan';
+                        rawPhone = parts[1];
+                        note = parts.slice(2).join(', ') || '-';
+                    }
+                }
+
+                const normalized = normalizePhoneNumber(rawPhone);
+                if (normalized && !seenNumbers.has(normalized)) {
+                    seenNumbers.add(normalized);
+                    validRecipients.push({
+                        lineIndex: idx,
+                        name,
+                        phone: normalized,
+                        note
+                    });
+                } else {
+                    invalidRecipients.push({
+                        raw: line,
+                        reason: normalized && seenNumbers.has(normalized) ? 'Duplikat' : 'Format Salah'
+                    });
+                }
+            });
+
+            document.getElementById('stat-total').textContent = lines.length;
+            document.getElementById('stat-valid').textContent = validRecipients.length;
+            document.getElementById('stat-invalid').textContent = invalidRecipients.length;
+            document.getElementById('validation-badge').textContent = `${validRecipients.length} Valid`;
+
+            const invalidBadge = document.getElementById('invalid-badge');
+            if (invalidRecipients.length > 0) {
+                invalidBadge.textContent = `${invalidRecipients.length} Invalid`;
+                invalidBadge.classList.remove('hidden');
+            } else {
+                invalidBadge.classList.add('hidden');
+            }
+
+            // Update label tombol kirim
+            const btnLabel = document.getElementById('btn-start-label');
+            if (btnLabel) {
+                btnLabel.textContent = validRecipients.length > 0
+                    ? `Kirim ke Semua (${validRecipients.length} Nomor)`
+                    : 'Kirim ke Semua Nomor';
+            }
+
+            renderParsedList();
+            updatePreviewDropdown();
+            updateLivePreview();
+        }
+
+        function removeRecipientByPhone(phone) {
+            const rawText = document.getElementById('recipients-input').value;
+            const lines = rawText.split(/\r?\n/);
+            const filtered = lines.filter(line => {
+                const parts = line.split(/[,;\t]/).map(p => p.trim());
+                return !parts.some(p => normalizePhoneNumber(p) === phone);
+            });
+            document.getElementById('recipients-input').value = filtered.join('\n');
+            parseRecipients();
+            showToast('Kontak dihapus dari daftar.', 'info');
+        }
+
+        function selectRecipientForPreview(index) {
+            const select = document.getElementById('preview-recipient-select');
+            if (select && select.options[index]) {
+                select.value = String(index);
+                updateLivePreview();
+            }
+        }
+
+        function renderParsedList() {
+            const container = document.getElementById('parsed-list');
+            if (validRecipients.length === 0 && invalidRecipients.length === 0) {
+                container.innerHTML = `<div class="p-4 text-center text-slate-400">Belum ada nomor dimasukkan</div>`;
+                return;
+            }
+
+            let html = '';
+            validRecipients.forEach((item, idx) => {
+                html += `
+                    <div class="px-3 py-2 flex items-center justify-between gap-2 hover:bg-slate-50 group">
+                        <div onclick="selectRecipientForPreview(${idx})" class="min-w-0 flex-1 cursor-pointer" title="Klik untuk pratinjau pesan kontak ini">
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-semibold text-slate-800 truncate">${escapeHtml(item.name)}</span>
+                                <span class="font-mono text-[10px] px-1.5 py-0.2 bg-emerald-50 text-emerald-700 rounded border border-emerald-200/70">+${item.phone}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 truncate">${escapeHtml(item.note)}</p>
+                        </div>
+                        <button type="button" onclick="removeRecipientByPhone('${item.phone}')" title="Hapus kontak" class="p-1 text-slate-400 hover:text-rose-600 rounded transition">
+                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                `;
+            });
+
+            invalidRecipients.forEach(item => {
+                html += `
+                    <div class="px-3 py-2 flex items-center justify-between bg-rose-50/50">
+                        <span class="truncate text-rose-700 pr-2">${escapeHtml(item.raw)}</span>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 bg-rose-100 text-rose-700 rounded-md shrink-0">${item.reason}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function updatePreviewDropdown() {
+            const select = document.getElementById('preview-recipient-select');
+            if (validRecipients.length === 0) {
+                select.innerHTML = `<option value="-1">Contoh Penerima</option>`;
+                return;
+            }
+            select.innerHTML = validRecipients.map((r, i) =>
+                `<option value="${i}">${escapeHtml(r.name)} (${r.phone})</option>`
+            ).join('');
+        }
+
+        // =====================================================================
+        // 3. COMPOSER & LIVE PREVIEW
+        // =====================================================================
+        function applyMessageTemplate(type) {
+            const templates = {
+                promo: `Halo *{nama}* 🎉,\n\nDapatkan penawaran spesial khusus pelanggan setia kami hari ini!\n• Kode / Info: *{keterangan}*\n\nBalas pesan ini untuk klaim promo Anda sekarang. Terima kasih!`,
+                tagihan: `Yth. *{nama}*,\n\nKami menginformasikan rincian tagihan Anda:\n• Keterangan: *{keterangan}*\n\nMohon melakukan pembayaran sebelum jatuh tempo. ~Abaikan jika sudah lunas~ Terima kasih.`,
+                undangan: `Halo *{nama}*,\n\nKami mengundang Anda untuk hadir dalam agenda kami:\n• Detail: *{keterangan}*\n\nMohon konfirmasi kehadiran Anda dengan membalas pesan ini. Salam hangat!`
+            };
+            if (templates[type]) {
+                document.getElementById('message-input').value = templates[type];
+                updateLivePreview();
+            }
+        }
+
+        function insertText(textToInsert) {
+            const textarea = document.getElementById('message-input');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const current = textarea.value;
+
+            textarea.value = current.substring(0, start) + textToInsert + current.substring(end);
+            textarea.focus();
+            textarea.selectionStart = textarea.selectionEnd = start + textToInsert.length;
+            updateLivePreview();
+        }
+
+        function wrapSelection(symbol) {
+            const textarea = document.getElementById('message-input');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const current = textarea.value;
+            const selected = current.substring(start, end) || 'teks';
+
+            const replacement = `${symbol}${selected}${symbol}`;
+            textarea.value = current.substring(0, start) + replacement + current.substring(end);
+            textarea.focus();
+            textarea.selectionStart = start + symbol.length;
+            textarea.selectionEnd = start + symbol.length + selected.length;
+            updateLivePreview();
+        }
+
+        function compileMessage(template, recipient) {
+            return template
+                .replace(/\{nama\}/gi, recipient.name)
+                .replace(/\{nomor\}/gi, recipient.phone)
+                .replace(/\{keterangan\}/gi, recipient.note);
+        }
+
+        function formatWhatsAppMarkdown(text) {
+            let safe = escapeHtml(text);
+            safe = safe.replace(/```([\s\S]+?)```/g, '<code class="bg-black/5 px-1 py-0.5 rounded font-mono text-xs">$1</code>');
+            safe = safe.replace(/\*([^\*\n]+)\*/g, '<strong>$1</strong>');
+            safe = safe.replace(/\_([^\_\n]+)\_/g, '<em>$1</em>');
+            safe = safe.replace(/\~([^\~\n]+)\~/g, '<del class="text-slate-500">$1</del>');
+            return safe;
+        }
+
+        function updateLivePreview() {
+            const template = document.getElementById('message-input').value;
+            document.getElementById('char-count').textContent = `${template.length} karakter`;
+
+            const selectIdx = parseInt(document.getElementById('preview-recipient-select').value);
+            const sampleRecipient = (validRecipients[selectIdx]) ? validRecipients[selectIdx] : {
+                name: 'Budi Santoso',
+                phone: '6281234567890',
+                note: 'Tagihan Rp 350.000'
+            };
+
+            document.getElementById('preview-name').textContent = sampleRecipient.name;
+            document.getElementById('preview-phone').textContent = '+' + sampleRecipient.phone;
+            const initials = sampleRecipient.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'WA';
+            document.getElementById('preview-avatar').textContent = initials;
+
+            const compiled = compileMessage(template, sampleRecipient);
+            const formattedHtml = formatWhatsAppMarkdown(compiled);
+            document.getElementById('preview-bubble-text').innerHTML = formattedHtml || '<span class="text-slate-400 italic">Pratinjau pesan kosong...</span>';
+        }
+
+        // =====================================================================
+        // 4. 3 MODE PENGIRIMAN MASSAL KE SEMUA NOMOR
+        // =====================================================================
+        function switchSendingMode() {
+            const mode = document.querySelector('input[name="send-mode"]:checked').value;
+            document.getElementById('panel-mode-api').classList.toggle('hidden', mode !== 'api');
+            document.getElementById('panel-mode-autolaunch').classList.toggle('hidden', mode !== 'autolaunch');
+            document.getElementById('panel-mode-simulation').classList.toggle('hidden', mode !== 'simulation');
+        }
+
+        function updateApiPlaceholder() {
+            const provider = document.getElementById('api-provider').value;
+            const tokenInput = document.getElementById('api-token');
+            const endpointWrapper = document.getElementById('api-endpoint-wrapper');
+            const endpointInput = document.getElementById('api-endpoint');
+
+            if (provider === 'fonnte') {
+                tokenInput.placeholder = 'Masukkan API Token Fonnte Anda...';
+                endpointWrapper.classList.add('hidden');
+            } else if (provider === 'wablas') {
+                tokenInput.placeholder = 'Masukkan API Token Wablas Anda...';
+                endpointWrapper.classList.remove('hidden');
+                endpointInput.placeholder = 'https://solo.wablas.com/api/send-message';
+            } else if (provider === 'meta') {
+                tokenInput.placeholder = 'Masukkan Bearer Access Token Meta...';
+                endpointWrapper.classList.remove('hidden');
+                endpointInput.placeholder = 'https://graph.facebook.com/v19.0/PHONE_NUMBER_ID/messages';
+            } else {
+                tokenInput.placeholder = 'Bearer Token / API Key (Opsional)...';
+                endpointWrapper.classList.remove('hidden');
+                endpointInput.placeholder = 'https://your-gateway-url.com/send';
+            }
+        }
+
+        // Helper jeda dengan countdown & dukungan Pause/Stop
+        async function waitWithCountdown(seconds, recipientName) {
+            const countdownEl = document.getElementById('blast-countdown-text');
+            let remaining = Math.ceil(seconds);
+
+            while (remaining > 0) {
+                if (stopBlastRequested) return;
+                while (isPaused && !stopBlastRequested) {
+                    countdownEl.textContent = 'Dijeda oleh pengguna...';
+                    await new Promise(r => setTimeout(r, 250));
+                }
+                if (stopBlastRequested) return;
+                countdownEl.textContent = `Jeda ${remaining} detik sebelum mengirim ke ${recipientName}...`;
+                await new Promise(r => setTimeout(r, 1000));
+                remaining--;
+            }
+            countdownEl.textContent = `Memproses ${recipientName}...`;
+        }
+
+        // Eksekusi API Gateway (Mode A)
+        async function sendViaGatewayAPI(recipient, compiledMessage) {
+            const provider = document.getElementById('api-provider').value;
+            const token = document.getElementById('api-token').value.trim();
+            const customEndpoint = document.getElementById('api-endpoint').value.trim();
+
+            try {
+                if (provider === 'fonnte') {
+                    const formData = new FormData();
+                    formData.append('target', recipient.phone);
+                    formData.append('message', compiledMessage);
+                    const res = await fetch('https://api.fonnte.com/send', {
+                        method: 'POST',
+                        headers: { 'Authorization': token },
+                        body: formData
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok && data.status !== false) {
+                        return { ok: true, detail: data.detail || 'Terkirim via Fonnte' };
+                    }
+                    return { ok: false, detail: data.reason || `HTTP ${res.status}` };
+                } else if (provider === 'wablas') {
+                    const url = customEndpoint || 'https://solo.wablas.com/api/send-message';
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': token,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ phone: recipient.phone, message: compiledMessage })
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    return res.ok
+                        ? { ok: true, detail: data.message || 'Terkirim via Wablas' }
+                        : { ok: false, detail: data.message || `HTTP ${res.status}` };
+                } else if (provider === 'meta') {
+                    if (!customEndpoint) return { ok: false, detail: 'Endpoint Meta belum diisi' };
+                    const res = await fetch(customEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            messaging_product: 'whatsapp',
+                            to: recipient.phone,
+                            type: 'text',
+                            text: { body: compiledMessage }
+                        })
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    return res.ok
+                        ? { ok: true, detail: 'Terkirim via Meta Cloud API' }
+                        : { ok: false, detail: data.error?.message || `HTTP ${res.status}` };
+                } else {
+                    if (!customEndpoint) return { ok: false, detail: 'Endpoint URL belum diisi' };
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (token) headers['Authorization'] = `Bearer ${token}`;
+                    const res = await fetch(customEndpoint, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify({
+                            phone: recipient.phone,
+                            name: recipient.name,
+                            message: compiledMessage,
+                            note: recipient.note
+                        })
+                    });
+                    return res.ok
+                        ? { ok: true, detail: `HTTP ${res.status} OK` }
+                        : { ok: false, detail: `HTTP ${res.status} Gagal` };
+                }
+            } catch (err) {
+                return { ok: false, detail: 'Koneksi / CORS Diblokir Browser' };
+            }
+        }
+
+        // Buka Tab WhatsApp (Mode B)
+        function launchWhatsAppTab(phone, message) {
+            const encoded = encodeURIComponent(message);
+            const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encoded}`;
+            const win = window.open(url, '_blank', 'noopener,noreferrer');
+            return Boolean(win);
+        }
+
+        // Opsi Buka Semua Tab Sekaligus (Mode B)
+        function launchAllTabsAtOnce() {
+            const template = document.getElementById('message-input').value.trim();
+            if (validRecipients.length === 0) {
+                showToast('Masukkan minimal 1 nomor tujuan yang valid!', 'error');
+                return;
+            }
+            if (!template) {
+                showToast('Pesan tidak boleh kosong!', 'error');
+                return;
+            }
+
+            let openedCount = 0;
+            validRecipients.forEach(recipient => {
+                const msg = compileMessage(template, recipient);
+                const opened = launchWhatsAppTab(recipient.phone, msg);
+                if (opened) openedCount++;
+
+                addLogEntry({
+                    name: recipient.name,
+                    phone: recipient.phone,
+                    mode: 'Auto-Launch (Batch)',
+                    status: opened ? 'Terkirim' : 'Gagal',
+                    time: getCurrentTimeStr(),
+                    detail: opened ? 'Tab WhatsApp dibuka' : 'Pop-up diblokir browser'
+                });
+            });
+
+            if (openedCount < validRecipients.length) {
+                showToast(`${openedCount} dari ${validRecipients.length} tab dibuka. Izinkan Pop-up di browser Anda!`, 'error');
+            } else {
+                showToast(`Seluruh ${openedCount} tab WhatsApp berhasil dibuka!`);
+            }
+        }
+
+        // Proses Utama Kirim ke Semua Nomor (Mode A, B, C)
+        async function startUnifiedBlast() {
+            if (isBlasting) return;
+            const template = document.getElementById('message-input').value.trim();
+            const mode = document.querySelector('input[name="send-mode"]:checked').value;
+
+            if (validRecipients.length === 0) {
+                showToast('Masukkan minimal 1 nomor tujuan yang valid!', 'error');
+                return;
+            }
+            if (!template) {
+                showToast('Isi pesan tidak boleh kosong!', 'error');
+                return;
+            }
+            if (mode === 'api') {
+                const provider = document.getElementById('api-provider').value;
+                const token = document.getElementById('api-token').value.trim();
+                if (provider !== 'custom' && !token) {
+                    showToast('Masukkan API Token Gateway terlebih dahulu!', 'error');
+                    return;
+                }
+            }
+
+            const delaySec = Math.max(1, parseFloat(document.getElementById('delay-input').value) || 3);
+            isBlasting = true;
+            isPaused = false;
+            stopBlastRequested = false;
+
+            // Update UI Kontrol
+            document.getElementById('btn-start-blast').classList.add('hidden');
+            document.getElementById('btn-pause-blast').classList.remove('hidden');
+            document.getElementById('btn-stop-blast').classList.remove('hidden');
+
+            const progressContainer = document.getElementById('blast-progress-container');
+            const progressBar = document.getElementById('blast-progress-bar');
+            const progressPct = document.getElementById('blast-percentage');
+            const statusText = document.getElementById('blast-status-text');
+            const counterText = document.getElementById('blast-counter-text');
+
+            progressContainer.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            progressPct.textContent = '0%';
+
+            const total = validRecipients.length;
+            let successCount = 0;
+
+            for (let i = 0; i < total; i++) {
+                if (stopBlastRequested) break;
+
+                while (isPaused && !stopBlastRequested) {
+                    statusText.textContent = 'Blast dijeda sementara...';
+                    await new Promise(r => setTimeout(r, 250));
+                }
+                if (stopBlastRequested) break;
+
+                const recipient = validRecipients[i];
+                if (i > 0) {
+                    await waitWithCountdown(delaySec, recipient.name);
+                }
+                if (stopBlastRequested) break;
+
+                statusText.textContent = `Mengirim ke ${recipient.name} (+${recipient.phone})...`;
+                counterText.textContent = `${i + 1} / ${total} nomor`;
+
+                const compiledMsg = compileMessage(template, recipient);
+                let result = { ok: false, detail: '' };
+                let modeLabel = '';
+
+                if (mode === 'api') {
+                    modeLabel = 'API Gateway';
+                    result = await sendViaGatewayAPI(recipient, compiledMsg);
+                } else if (mode === 'autolaunch') {
+                    modeLabel = 'Auto-Launch';
+                    const opened = launchWhatsAppTab(recipient.phone, compiledMsg);
+                    result = {
+                        ok: opened,
+                        detail: opened ? 'Tab WhatsApp terbuka' : 'Pop-up diblokir browser'
+                    };
+                } else {
+                    modeLabel = 'Simulasi';
+                    await new Promise(r => setTimeout(r, 400));
+                    const simOk = Math.random() > 0.05;
+                    result = {
+                        ok: simOk,
+                        detail: simOk ? 'Simulasi berhasil terkirim' : 'Simulasi gagal (timeout)'
+                    };
+                }
+
+                if (result.ok) successCount++;
+
+                addLogEntry({
+                    name: recipient.name,
+                    phone: recipient.phone,
+                    mode: modeLabel,
+                    status: result.ok ? 'Terkirim' : 'Gagal',
+                    time: getCurrentTimeStr(),
+                    detail: result.detail
+                });
+
+                const pct = Math.round(((i + 1) / total) * 100);
+                progressBar.style.width = `${pct}%`;
+                progressPct.textContent = `${pct}%`;
+            }
+
+            isBlasting = false;
+            isPaused = false;
+            document.getElementById('btn-start-blast').classList.remove('hidden');
+            document.getElementById('btn-pause-blast').classList.add('hidden');
+            document.getElementById('btn-stop-blast').classList.add('hidden');
+            document.getElementById('blast-countdown-text').textContent = 'Proses selesai.';
+
+            if (stopBlastRequested) {
+                statusText.textContent = 'Pengiriman dihentikan.';
+                showToast('Pengiriman massal dihentikan.', 'info');
+            } else {
+                statusText.textContent = `Selesai! ${successCount} dari ${total} berhasil.`;
+                showToast(`Selesai! ${successCount}/${total} nomor berhasil diproses.`);
+            }
+        }
+
+        function togglePauseBlast() {
+            if (!isBlasting) return;
+            isPaused = !isPaused;
+            const btn = document.getElementById('btn-pause-blast');
+            if (isPaused) {
+                btn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5"></i><span>Lanjut</span>`;
+                btn.classList.replace('bg-amber-500', 'bg-emerald-600');
+                showToast('Pengiriman dijeda.', 'info');
+            } else {
+                btn.innerHTML = `<i data-lucide="pause" class="w-3.5 h-3.5"></i><span>Jeda</span>`;
+                btn.classList.replace('bg-emerald-600', 'bg-amber-500');
+                showToast('Pengiriman dilanjutkan.', 'info');
+            }
+            lucide.createIcons();
+        }
+
+        function stopUnifiedBlast() {
+            if (isBlasting) {
+                stopBlastRequested = true;
+                isPaused = false;
+            }
+        }
+
+        // =====================================================================
+        // 5. RIWAYAT LOG & EXPORT CSV
+        // =====================================================================
+        function addLogEntry(entry) {
+            deliveryLogs.unshift(entry);
+            const sentTotal = deliveryLogs.filter(l => l.status === 'Terkirim').length;
+            document.getElementById('stat-sent').textContent = sentTotal;
+            renderLogsTable();
+        }
+
+        function renderLogsTable() {
+            const tbody = document.getElementById('logs-table-body');
+            const filter = document.getElementById('log-filter-status').value;
+
+            const filteredLogs = filter === 'ALL'
+                ? deliveryLogs
+                : deliveryLogs.filter(l => l.status === filter);
+
+            if (filteredLogs.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="py-8 text-center text-slate-400">
+                            Tidak ada data log yang ditampilkan.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filteredLogs.map((log, idx) => {
+                const isOk = log.status === 'Terkirim';
+                const template = document.getElementById('message-input').value;
+                const msg = compileMessage(template, { name: log.name, phone: log.phone, note: '-' });
+                const waDirect = `https://api.whatsapp.com/send?phone=${log.phone}&text=${encodeURIComponent(msg)}`;
+
+                return `
+                    <tr class="hover:bg-slate-50/90 transition">
+                        <td class="py-3 px-4 font-mono text-slate-400">${filteredLogs.length - idx}</td>
+                        <td class="py-3 px-4 font-semibold text-slate-800 whitespace-nowrap">${escapeHtml(log.name)}</td>
+                        <td class="py-3 px-4 font-mono text-slate-600 whitespace-nowrap">+${log.phone}</td>
+                        <td class="py-3 px-4 whitespace-nowrap">
+                            <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-medium">${escapeHtml(log.mode)}</span>
+                        </td>
+                        <td class="py-3 px-4 whitespace-nowrap">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${isOk ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                                <span class="w-1.5 h-1.5 rounded-full ${isOk ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
+                                ${log.status}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 font-mono text-slate-500 whitespace-nowrap">${log.time}</td>
+                        <td class="py-3 px-4 text-slate-500 max-w-[220px] truncate" title="${escapeHtml(log.detail)}">${escapeHtml(log.detail)}</td>
+                        <td class="py-3 px-4 text-right whitespace-nowrap">
+                            <a href="${waDirect}" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:underline font-semibold text-xs">Buka Chat</a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function clearLogs() {
+            deliveryLogs = [];
+            document.getElementById('stat-sent').textContent = '0';
+            renderLogsTable();
+            showToast('Riwayat log dibersihkan.', 'info');
+        }
+
+        function exportLogsCSV() {
+            if (deliveryLogs.length === 0) {
+                showToast('Belum ada data log untuk diexport!', 'error');
+                return;
+            }
+
+            const headers = ['No', 'Nama', 'Nomor Tujuan', 'Mode', 'Status', 'Waktu', 'Keterangan'];
+            const rows = deliveryLogs.map((log, i) => [
+                i + 1,
+                `"${log.name.replace(/"/g, '""')}"`,
+                `"${log.phone}"`,
+                `"${log.mode}"`,
+                `"${log.status}"`,
+                `"${log.time}"`,
+                `"${log.detail.replace(/"/g, '""')}"`
+            ]);
+
+            const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Laporan_WABlast_${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast('File CSV laporan berhasil diunduh!');
+        }
+
+        function resetAllData() {
+            stopUnifiedBlast();
+            document.getElementById('recipients-input').value = '';
+            document.getElementById('blast-progress-container').classList.add('hidden');
+            parseRecipients();
+            clearLogs();
+            showToast('Data penerima & log berhasil direset.', 'info');
+        }
+
+        function getCurrentTimeStr() {
+            return new Date().toTimeString().split(' ')[0];
+        }
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+    </script>
+</body>
+</html>
